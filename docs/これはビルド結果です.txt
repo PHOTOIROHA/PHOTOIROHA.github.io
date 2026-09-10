@@ -1,0 +1,11 @@
+このフォルダは、python3 build.py が毎回まるごと作り直します。
+
+ここのファイルを手で編集しても、次のビルドで消えます。
+文章や写真を直すときは、ひとつ上の src/ と photos/ を編集してください。
+
+  src/content/kenchiku.json   文章と、どの写真を使うかの指定
+  photos/kenchiku/            サイト用に縮小した写真
+  src/styles/site.css         見た目
+
+このフォルダの名前が docs なのは、GitHub Pages が公開できるフォルダ名が
+「リポジトリ直下」か「docs」の2つしかないためです。文書置き場ではありません。
