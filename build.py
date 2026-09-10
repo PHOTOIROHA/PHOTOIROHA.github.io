@@ -24,6 +24,9 @@ SRC = ROOT / "src"
 PHOTOS = ROOT / "photos"
 ASSETS = ROOT / "assets"   # ロゴなど、ページに依らない素材
 
+# 公開先。OGP（リンクを貼ったときの見え方）は絶対URLでないと効かない。
+SITE_URL = "https://photoiroha.github.io"
+
 # 公開フォルダ（docs/）に毎回置く目印。開いた人が中身を手で直さないように。
 MARKER = """このフォルダは、python3 build.py が毎回まるごと作り直します。
 
@@ -89,8 +92,11 @@ def img_tag(slug: str, filename: str, alt: str, embed: bool) -> str:
     return f'<img src="{src}" alt="{alt}">'
 
 
-def build_nav(current_page: str):
-    """ヘッダーの2段のナビを組み立てる。現在地とそれ以外を出し分ける。"""
+def build_nav(current_page, prefix: str = ""):
+    """ヘッダーの2段のナビを組み立てる。現在地とそれ以外を出し分ける。
+
+    prefix は、404ページのように「どの階層から開かれるか分からない」場合に "/" を渡す。
+    """
     current_section = None
     for section in SITE["sections"]:
         if any(p["key"] == current_page for p in section["pages"]):
@@ -99,7 +105,7 @@ def build_nav(current_page: str):
     primary = []
     top = SITE["top"]
     if top["ready"]:
-        primary.append(f'<a class="nav-item" href="{top["slug"]}.html">{top["label"]}</a>')
+        primary.append(f'<a class="nav-item" href="{prefix}{top["slug"]}.html">{top["label"]}</a>')
     else:
         primary.append(f'<span class="nav-item is-soon">{top["label"]} <span class="soon-tag">準備中</span></span>')
 
@@ -118,9 +124,12 @@ def build_nav(current_page: str):
             if page["key"] == current_page:
                 sub.append(f'<span class="sub-item is-current">{page["label"]}</span>')
             elif page["ready"]:
-                sub.append(f'<a class="sub-item" href="{page["key"]}.html">{page["label"]}</a>')
+                sub.append(f'<a class="sub-item" href="{prefix}{page["key"]}.html">{page["label"]}</a>')
             else:
                 sub.append(f'<span class="sub-item is-soon">{page["label"]} <span class="soon-tag">準備中</span></span>')
+
+    if current_page is None:
+        return "\n      ".join(primary), "", ""
 
     breadcrumb_parts = ["トップ"]
     if current_section:
@@ -192,12 +201,47 @@ def build_page(slug: str, draft: bool, embed: bool) -> str:
         "STYLE": style,
         "LOGO": data_uri(ASSETS / "logo.png") if embed else "assets/logo.png",
         "ROOT": "",
+        "SITE_URL": SITE_URL,
+        "CANONICAL": f"{SITE_URL}/{slug}.html",
         "NAV_PRIMARY": nav_primary,
-        "NAV_SUB": nav_sub,
-        "BREADCRUMB": breadcrumb,
-        "SHEET_META": sheet_meta,
+        "SUBHEAD": (f'  <div class="bar-sub rule">{nav_sub}</div>\n\n'
+                    f'  <div class="titleblock rule">\n'
+                    f'    <p class="breadcrumb">{breadcrumb}</p>\n'
+                    f'    {sheet_meta}\n  </div>'),
         "MAIN": main,
         "FOOT_NOTE": foot_note,
+    })
+
+
+def build_404() -> str:
+    """存在しないURLが開かれたときのページ。
+
+    どの階層で表示されるか分からないので、CSSも画像もリンクも絶対パス（/で始まる）にする。
+    相対パスにすると、/aaa/bbb のようなURLで開かれたときに崩れる。
+    """
+    base_tpl = (SRC / "templates" / "base.html").read_text(encoding="utf-8")
+    nav_primary, _, _ = build_nav(None, prefix="/")
+
+    main_html = """  <div class="wrap notfound">
+    <p class="eyebrow">404 NOT FOUND</p>
+    <h1>お探しのページが<br>見つかりませんでした。</h1>
+    <p>アドレスが変わったか、入力に誤りがあるかもしれません。</p>
+    <p class="notfound-links"><a href="/kenchiku.html">建築写真のページへ</a></p>
+  </div>
+"""
+
+    return fill(base_tpl, {
+        "PAGE_TITLE": "ページが見つかりません",
+        "DESCRIPTION": "お探しのページが見つかりませんでした。",
+        "STYLE": '<link rel="stylesheet" href="/styles/site.css">',
+        "LOGO": "/assets/logo.png",
+        "ROOT": "/",
+        "SITE_URL": SITE_URL,
+        "CANONICAL": f"{SITE_URL}/404.html",
+        "NAV_PRIMARY": nav_primary,
+        "SUBHEAD": "",
+        "MAIN": main_html,
+        "FOOT_NOTE": "&copy; PHOTO IROHA",
     })
 
 
@@ -232,6 +276,9 @@ def main():
     for slug in slugs:
         (out_dir / f"{slug}.html").write_text(build_page(slug, draft=args.draft, embed=False), encoding="utf-8")
         print(f"docs/{slug}.html")
+
+    (out_dir / "404.html").write_text(build_404(), encoding="utf-8")
+    print("docs/404.html")
 
     total = sum(f.stat().st_size for f in out_dir.rglob("*") if f.is_file())
     print(f"合計 {total / 1024 / 1024:.2f} MB")

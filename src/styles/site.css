@@ -88,6 +88,7 @@ nav.primary{display:flex;align-items:center;gap:clamp(14px,2.4vw,28px);flex-wrap
 }
 
 .bar-sub{display:flex;align-items:center;gap:clamp(16px,3vw,32px);padding-block:12px;flex-wrap:wrap;}
+.bar-sub:empty,.titleblock:empty{display:none;}   /* 404ページなど、中身が無いときは行ごと消す */
 .sub-item{font-size:.86rem;color:var(--muted);text-decoration:none;}
 .sub-item.is-current{color:var(--ink);font-weight:700;}
 .sub-item.is-current::before{content:"◆ ";color:var(--accent);font-size:.7em;}
@@ -159,6 +160,13 @@ h1{
 }
 .btn svg{width:16px;height:16px;}
 .btn:hover{background:var(--accent);border-color:var(--accent);}
+
+/* ---------- 404 ---------- */
+.notfound{padding-block:clamp(64px,12vw,140px);}
+.notfound h1{font-size:clamp(1.6rem,3.6vw,2.4rem);margin-block:18px clamp(24px,3vw,32px);}
+.notfound p{margin:0;color:var(--muted);}
+.notfound-links{margin-top:28px !important;}
+.notfound-links a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--accent);padding-bottom:2px;}
 
 footer{border-top:1px solid var(--line);margin-top:clamp(56px,8vw,96px);}
 .foot-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-block:22px;font-size:.76rem;color:var(--muted);}
