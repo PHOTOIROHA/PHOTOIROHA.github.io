@@ -17,6 +17,7 @@ import re
 import shutil
 from datetime import date
 from pathlib import Path
+from urllib.parse import quote
 
 ROOT = Path(__file__).parent
 SRC = ROOT / "src"
@@ -144,6 +145,9 @@ def build_page(slug: str, draft: bool, embed: bool) -> str:
     )
     cta_lines = "\n".join(f"        <p>{line}</p>" for line in content["cta"]["lines"])
 
+    # メールの宛先と件名。件名は日本語なので URL エンコードして渡す。
+    mailto = f'mailto:{content["cta"]["email"]}?subject={quote(content["cta"]["subject"])}'
+
     main = fill(page_tpl, {
         "HERO_IMG": img_tag(slug, content["hero"]["file"], content["hero"]["alt"], embed),
         "EYEBROW": content["eyebrow"],
@@ -158,7 +162,9 @@ def build_page(slug: str, draft: bool, embed: bool) -> str:
         "GALLERY_NOTE": content["gallery"]["note"],
         "GALLERY_ITEMS": gallery_items,
         "CTA_LINES": cta_lines,
-        "CTA_HREF": content["cta"]["href"],
+        "CTA_HREF": mailto,
+        "CTA_EMAIL": content["cta"]["email"],
+        "CTA_NOTE": f'        <p class="cta-note">{content["cta"]["note"]}</p>' if content["cta"].get("note") else "",
         "CTA_LABEL": content["cta"]["label"],
     })
 

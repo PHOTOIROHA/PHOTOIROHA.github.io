@@ -146,6 +146,10 @@ h1{
 }
 .cta-copy p{margin:0;color:var(--muted);font-size:.92rem;}
 .cta-copy p + p{margin-top:4px;}
+.cta-address{margin-top:14px !important;font-family:var(--font-mono);font-size:.9rem !important;}
+.cta-address a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line);}
+.cta-address a:hover{border-bottom-color:var(--accent);}
+.cta-note{margin-top:10px !important;font-size:.8rem !important;}
 .btn{
   font-family:var(--font-body);font-weight:700;font-size:.95rem;letter-spacing:.02em;
   color:var(--ground);background:var(--accent-strong);border:1px solid var(--accent-strong);
