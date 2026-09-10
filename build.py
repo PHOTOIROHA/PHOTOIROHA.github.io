@@ -22,6 +22,7 @@ from urllib.parse import quote
 ROOT = Path(__file__).parent
 SRC = ROOT / "src"
 PHOTOS = ROOT / "photos"
+ASSETS = ROOT / "assets"   # ロゴなど、ページに依らない素材
 
 # 公開フォルダ（docs/）に毎回置く目印。開いた人が中身を手で直さないように。
 MARKER = """このフォルダは、python3 build.py が毎回まるごと作り直します。
@@ -189,6 +190,7 @@ def build_page(slug: str, draft: bool, embed: bool) -> str:
         "PAGE_TITLE": content["page_title"],
         "DESCRIPTION": content["description"],
         "STYLE": style,
+        "LOGO": data_uri(ASSETS / "logo.png") if embed else "assets/logo.png",
         "ROOT": "",
         "NAV_PRIMARY": nav_primary,
         "NAV_SUB": nav_sub,
@@ -223,6 +225,7 @@ def main():
     (out_dir / "styles").mkdir()
     shutil.copy2(SRC / "styles" / "site.css", out_dir / "styles" / "site.css")
     shutil.copytree(PHOTOS, out_dir / "photos")
+    shutil.copytree(ASSETS, out_dir / "assets")
     (out_dir / ".nojekyll").write_text("", encoding="utf-8")
     (out_dir / "これはビルド結果です.txt").write_text(MARKER, encoding="utf-8")
 

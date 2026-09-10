@@ -69,11 +69,13 @@ figure{margin:0;}
 
 /* ---------- ヘッダー ---------- */
 .bar-primary{display:flex;align-items:center;justify-content:space-between;gap:24px;padding-block:18px;}
-.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);}
-.logo svg{width:30px;height:30px;flex:none;}
-.logo-text{font-family:"Zen Kaku Gothic New",var(--font-body);font-weight:700;letter-spacing:.06em;line-height:1.05;}
-.logo-text .top{display:block;font-size:.62rem;letter-spacing:.32em;color:var(--muted);}
-.logo-text .bottom{display:block;font-size:1.05rem;}
+/* ロゴは黒の線画（背景は透明）。ダークモードでは反転させて白くする。 */
+.logo{display:inline-flex;align-items:center;text-decoration:none;}
+.logo img{width:auto;height:46px;}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .logo img{filter:invert(1);}
+}
+:root[data-theme="dark"] .logo img{filter:invert(1);}
 
 nav.primary{display:flex;align-items:center;gap:clamp(14px,2.4vw,28px);flex-wrap:wrap;}
 .nav-item{font-size:.86rem;display:inline-flex;align-items:center;gap:6px;padding-block:4px;text-decoration:none;}
